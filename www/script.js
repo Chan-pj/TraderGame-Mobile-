@@ -70,8 +70,8 @@ const LOBBYIST_EXEMPT_EVERY = 3;      // 임대료 징수 3회마다 1회 완전
 const FUND_MANAGER_RATE = 0.005;      // 매턴 보유 현금의 0.5%
 const LOAN_CAP_BONUS = 2500000;
 const STAFF_DISCOUNT_RATE = 0.4;      // 재무 컨설턴트 - 전 직원 급여 40% 절감
-const THEME_HUNTER_EVENT_MULT = 2;    // 테마 헌터 - 급등 이벤트 확률 배수
-const TAX_REFUND_RATE = 0.05;         // 세무사 - 매도 차익 환급 비율
+const THEME_HUNTER_HINT_ACCURACY = 0.75; // 테마 헌터 - 급등 지속 여부 예측 적중률
+const TAX_REFUND_RATE = 0.15;         // 세무사 - 매도 차익 환급 비율
 const HEDGE_RECOVERY_RATE = 0.3;      // 헤지 매니저 - 상장폐지 시 매입 원금 회수 비율
 
 // 직원은 고용비 없이 '영입(드래프트)'으로만 합류, 대가는 5턴마다 청구되는 급여
@@ -84,8 +84,8 @@ const EMPLOYEES = [
   { id: 'finance_manager', name: '재무팀장',      desc: '임대료·급여 20% 감면',                        salary: 125000 },
   { id: 'lobbyist',        name: '로비스트',      desc: '임대료 징수 3회마다 1회 완전 면제',            salary: 200000 },
   { id: 'fund_manager',    name: '펀드매니저',    desc: '매턴 보유 현금의 0.5%를 안정적으로 증식',      salary: 300000 },
-  { id: 'theme_hunter',    name: '테마 헌터',     desc: '테마주 급등 이벤트 발생 확률 2배',             salary: 150000, locked: true },
-  { id: 'tax_expert',      name: '세무사',        desc: '매도 차익의 5%를 추가로 환급',                 salary: 150000, locked: true },
+  { id: 'theme_hunter',    name: '테마 헌터',     desc: '급등 발생 시 추가 상승 여부 예측 (적중률 75%)', salary: 150000, locked: true },
+  { id: 'tax_expert',      name: '세무사',        desc: '매도 차익의 15%를 추가로 환급',                salary: 150000, locked: true },
   { id: 'hedge_manager',   name: '헤지 매니저',   desc: '상장폐지 시 매입 원금의 30% 회수',             salary: 125000, locked: true }
 ];
 
@@ -117,13 +117,15 @@ const DRAFT_BASE_OPTIONS = 3;  // 기본 영입 후보 수
 const POINTS_PER_ACHIEVEMENT = 5;
 const LOCKED_SECTORS = ['바이오', '레저·엔터'];
 const UPGRADES = [
-  { key: 'start_cash',     name: '종잣돈',          desc: '시작 자금 +1,000,000원 (단계당)', maxLevel: 5, cost: lv => 8 + lv * 4 },
-  { key: 'draft_plus',     name: '헤드헌터 계약',   desc: '직원 영입 후보 +1명',            maxLevel: 1, cost: () => 25 },
+  { key: 'start_cash',     name: '종잣돈',          desc: '시작 자금 +1,000,000원 (단계당)', maxLevel: 5, cost: lv => [10, 15, 20, 30, 40][lv] },
+  { key: 'draft_plus',     name: '헤드헌터 계약',   desc: '직원 영입 후보 +1명',            maxLevel: 1, cost: () => 30 },
   { key: 'sector_bio',     name: '바이오 섹터',     desc: '바이오 종목이 시장에 등장',       maxLevel: 1, cost: () => 15, sector: '바이오' },
   { key: 'sector_leisure', name: '레저·엔터 섹터',  desc: '레저·엔터 종목이 시장에 등장',    maxLevel: 1, cost: () => 15, sector: '레저·엔터' },
   { key: 'emp_theme_hunter',  name: '테마 헌터',    desc: '영입 후보에 테마 헌터 추가',      maxLevel: 1, cost: () => 12, employee: 'theme_hunter' },
   { key: 'emp_tax_expert',    name: '세무사',       desc: '영입 후보에 세무사 추가',         maxLevel: 1, cost: () => 12, employee: 'tax_expert' },
-  { key: 'emp_hedge_manager', name: '헤지 매니저',  desc: '영입 후보에 헤지 매니저 추가',    maxLevel: 1, cost: () => 12, employee: 'hedge_manager' }
+  { key: 'emp_hedge_manager', name: '헤지 매니저',  desc: '영입 후보에 헤지 매니저 추가',    maxLevel: 1, cost: () => 12, employee: 'hedge_manager' },
+  // 소모품: 전부 해금한 뒤에도 포인트를 쓸 곳 (최대 3개 보유, 판 시작 시 1개 사용)
+  { key: 'scout_ticket',   name: '스카우트 계약',   desc: '다음 판 시작 즉시 인재 영입 (후보 +2명) · 1회용', maxLevel: 3, cost: () => 10, consumable: true }
 ];
 const UPGRADE_START_CASH_STEP = 1000000;
 
@@ -424,6 +426,7 @@ const networthValue = document.getElementById('networth-value');
 const turnValue = document.getElementById('turn-value');
 const nextFeeValue = document.getElementById('next-fee-value');
 const nextSalaryValue = document.getElementById('next-salary-value');
+const nextNextFeeValue = document.getElementById('next-next-fee-value');
 const feeTurnsLeftEl = document.getElementById('fee-turns-left');
 const eventBanner = document.getElementById('event-banner');
 const tabButtons = document.querySelectorAll('.tab-btn');
@@ -435,6 +438,7 @@ const loanBtn = document.getElementById('loan-btn');
 const repayBtn = document.getElementById('repay-btn');
 const repayAmountSpan = document.getElementById('repay-amount');
 const retireBtn = document.getElementById('retire-btn');
+const settleBtn = document.getElementById('settle-btn');
 const sellAllBtn = document.getElementById('sell-all-btn');
 const nextTurnBtn = document.getElementById('next-turn-btn');
 const exitGameBtn = document.getElementById('exit-game-btn');
@@ -773,6 +777,29 @@ async function getRecentSessions(limit) {
   return result.values || [];
 }
 
+// ───────── 처음 하는 플레이어용 팁 (한 번만 표시) ─────────
+const TIPS = {
+  start:  '💡 상단 오른쪽 시장 국면 표시를 누르면 지금 강세인 업종을 볼 수 있어요.\n국면이 바뀌면 소식 탭에도 알려줍니다.',
+  news:   '💡 뉴스는 3턴 동안 해당 종목에 영향을 줍니다.\n공시는 거의 확실하지만 움직임이 작고, 보도는 그 중간입니다.\n결과(적중/빗나감)는 소식 탭에서 확인할 수 있어요.',
+  rumor:  '💡 루머는 크게 움직이지만 대부분 헛소문입니다.\n정보 분석가를 영입하면 진위를 가려낼 수 있어요.',
+  rent:   '💡 다음 턴에 첫 임대료가 청구됩니다.\n임대료는 청구할 때마다 크게 늘어나니, 오래 버티기보다 빠르게 목표를 노리세요.',
+  settle: "💡 판이 많이 기울었다면 하단의 '조기 정산'으로 지금까지 불린 만큼 포인트를 받고 끝낼 수 있어요."
+};
+const tipQueue = [];
+
+function queueTip(key) {
+  if (getMeta('tip_' + key) || tipQueue.includes(key)) return;
+  tipQueue.push(key);
+}
+
+async function flushTips() {
+  while (tipQueue.length > 0 && !isGameEnded) {
+    const key = tipQueue.shift();
+    await setMeta('tip_' + key, 1);
+    await showAppAlert(TIPS[key]);
+  }
+}
+
 // ───────── 메타 진행 ─────────
 async function loadMetaState() {
   const result = await SQLite.query({ database: DB_NAME, statement: 'SELECT key, value FROM meta;', values: [] });
@@ -819,14 +846,15 @@ async function computeMetaBonus() {
   return bonus;
 }
 
-// 한 판 결과로 얻는 포인트: 최고 순자산 500만원당 1P + 은퇴 10P (공격형 +5P)
+// 한 판 결과로 얻는 포인트: 시작 자금 대비 최고 순자산 증가분 250만원당 1P + 은퇴 10P, 공격형은 전체 ×1.5
+// (증가분 기준이라 시작하자마자 조기 정산해도 포인트를 얻을 수 없음)
+const AGGRESSIVE_POINT_MULT = 1.5;
+const POINT_GROWTH_UNIT = 2500000;
 function computeRunPoints(result) {
   const peak = Math.max(0, peakNetWorth, ...netWorthHistory);
-  let points = Math.floor(peak / 5000000);
-  if (result === 'retired') {
-    points += 10;
-    if (difficulty === 'aggressive') points += 5;
-  }
+  let points = Math.floor(Math.max(0, peak - gameStartCash) / POINT_GROWTH_UNIT);
+  if (result === 'retired') points += 10;
+  if (difficulty === 'aggressive') points = Math.round(points * AGGRESSIVE_POINT_MULT);
   return points;
 }
 
@@ -840,15 +868,17 @@ async function renderUpgradeScreen() {
     const canBuy = !isMax && getMeta('points') >= cost;
 
     const row = document.createElement('div');
-    row.className = 'upgrade-row' + (level > 0 ? ' owned' : '');
-    const levelText = u.maxLevel > 1 ? ` <span class="upgrade-level">${level}/${u.maxLevel}</span>` : '';
+    row.className = 'upgrade-row' + (level > 0 && !u.consumable ? ' owned' : '');
+    const levelText = u.consumable
+      ? ` <span class="upgrade-level">보유 ${level}/${u.maxLevel}</span>`
+      : (u.maxLevel > 1 ? ` <span class="upgrade-level">${level}/${u.maxLevel}</span>` : '');
     row.innerHTML = `
       <div class="upgrade-body">
         <div class="upgrade-name">${u.name}${levelText}</div>
         <div class="upgrade-desc">${u.desc}</div>
       </div>
       <button class="upgrade-buy-btn" data-key="${u.key}" ${canBuy ? '' : 'disabled'}>
-        ${isMax ? (u.maxLevel > 1 ? '최대' : '해금됨') : `${cost}P`}
+        ${isMax ? (u.consumable ? '보유 최대' : (u.maxLevel > 1 ? '최대' : '해금됨')) : `${cost}P`}
       </button>
     `;
     upgradeListEl.appendChild(row);
@@ -936,6 +966,10 @@ achievementsBtn.addEventListener('click', async () => {
 achvBackBtn.addEventListener('click', () => showScreen(mainMenu));
 
 // ───────── 플레이 기록 ─────────
+const RESULT_LABELS = { retired: '은퇴', settled: '정산', bankrupt: '파산' };
+const RESULT_CLASSES = { retired: 'result-good', settled: 'result-mid', bankrupt: 'result-bad' };
+function getResultLabel(result) { return RESULT_LABELS[result] || '파산'; }
+
 async function saveSession(finalNetWorth, result) {
   const employeeNames = [...hiredEmployees].map(id => {
     const emp = getEmployee(id);
@@ -971,7 +1005,7 @@ async function renderRecordsScreen() {
     recordsSummaryEl.textContent = '아직 플레이 기록이 없습니다.';
   } else {
     summary.forEach(h => {
-      const label = h.result === 'retired' ? '은퇴' : '파산';
+      const label = getResultLabel(h.result);
       const div = document.createElement('div');
       div.textContent = `${label} ${h.cnt}회 · 최고 자산 ${h.best.toLocaleString()}원`;
       recordsSummaryEl.appendChild(div);
@@ -989,8 +1023,8 @@ async function renderRecordsScreen() {
   }
 
   sessions.forEach(s => {
-    const resultLabel = s.result === 'retired' ? '은퇴' : '파산';
-    const resultClass = s.result === 'retired' ? 'result-good' : 'result-bad';
+    const resultLabel = getResultLabel(s.result);
+    const resultClass = RESULT_CLASSES[s.result] || 'result-bad';
     const dateStr = (s.played_at || '').slice(0, 16);
     const diffLabel = DIFFICULTIES[s.difficulty] ? DIFFICULTIES[s.difficulty].label : '-';
 
@@ -1052,9 +1086,10 @@ function getLoanCurrentRepay() {
   return loan.amount + (loan.interest || 0);
 }
 
-function computeRentBreakdown() {
+// chargeOffset: 0 = 이번 청구, 1 = 그다음 청구
+function computeRentBreakdown(chargeOffset = 0) {
   const baseDiscount = metaBonus ? metaBonus.rentBase : 0;
-  const base = Math.round(RENT_BASE * Math.pow(DIFFICULTIES[difficulty].rentGrowth, rentChargeCount) * (1 - baseDiscount));
+  const base = Math.round(RENT_BASE * Math.pow(DIFFICULTIES[difficulty].rentGrowth, rentChargeCount + chargeOffset) * (1 - baseDiscount));
 
   let salaryTotal = 0;
   hiredEmployees.forEach(id => {
@@ -1082,13 +1117,13 @@ function getNextDraftTurn(t) {
   return DRAFT_FIRST_TURN + (Math.floor((t - DRAFT_FIRST_TURN) / DRAFT_INTERVAL) + 1) * DRAFT_INTERVAL;
 }
 
-function rollDraft() {
+function rollDraft(extraOptions = 0) {
   const pool = EMPLOYEES.filter(e => isEmployeeUnlocked(e) && !hiredEmployees.has(e.id));
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  const size = DRAFT_BASE_OPTIONS + (metaBonus ? metaBonus.draftPlus : 0);
+  const size = DRAFT_BASE_OPTIONS + (metaBonus ? metaBonus.draftPlus : 0) + extraOptions;
   const picked = pool.slice(0, size).map(e => e.id);
   return picked.length > 0 ? picked : null;
 }
@@ -1278,7 +1313,10 @@ async function saveState() {
                draft: pendingDraft,
                startCash: gameStartCash,
                peak: peakNetWorth,
-               loanCooldownUntil
+               loanCooldownUntil,
+               news: activeNews,
+               event: activeEvent,
+               newsHistory: newsHistory.slice(0, 30)
              })]
   });
 
@@ -1423,7 +1461,10 @@ async function startNewGame(diffKey) {
   loanCooldownUntil = 0;
   expandedStockIds = new Set();
   marketRegime = rollRegime(null);
-  pendingDraft = metaBonus.instantDraft ? rollDraft() : null;
+  // 시작 즉시 영입: 업적 '만물박사' 보상 또는 스카우트 계약(후보 +2명, 1개 소모)
+  const useScout = getMeta('scout_ticket') > 0;
+  if (useScout) await setMeta('scout_ticket', getMeta('scout_ticket') - 1);
+  pendingDraft = (metaBonus.instantDraft || useScout) ? rollDraft(useScout ? 2 : 0) : null;
 
   recomputeEmployeeEffects();
   const regime = MARKET_REGIMES[marketRegime.key];
@@ -1441,6 +1482,8 @@ async function startNewGame(diffKey) {
   updateBottomPanel();
   resultOverlay.classList.add('hidden');
   if (pendingDraft) showDraftModal();
+  queueTip('start');
+  await flushTips();
 }
 
 async function tryResumeGame() {
@@ -1513,9 +1556,15 @@ async function tryResumeGame() {
     sectorsHeldThisGame = new Set();
   }
   stocks.forEach(s => { if (s.quantity > 0) sectorsHeldThisGame.add(s.sector); });
-  activeEvent = null;
+  // 진행 중이던 뉴스·급등 이벤트와 소식 기록 복원 (상장된 종목만 유효)
+  const listedIds = new Set(stocks.filter(s => !s.delisted).map(s => s.id));
   activeNews = null;
-  newsHistory = []; // 재시작 시점 이전 소식은 남아있지 않음
+  if (flags && flags.news && NEWS_SOURCES[flags.news.src]) {
+    const ids = (flags.news.stockIds || []).filter(id => listedIds.has(id));
+    if (ids.length > 0) activeNews = { ...flags.news, stockIds: ids };
+  }
+  activeEvent = (flags && flags.event && listedIds.has(flags.event.stockId)) ? flags.event : null;
+  newsHistory = (flags && Array.isArray(flags.newsHistory)) ? flags.newsHistory : [];
   hasUnreadNews = false;
   expandedStockIds = new Set();
   priceHistory = stocks.map(s => [s.price]);
@@ -1594,17 +1643,19 @@ function generateNews() {
     ? (Math.random() < ANALYST_VERDICT_ACCURACY ? truth : !truth)
     : null;
 
-  activeNews = { stockIds: targetIds, direction: isPositive ? 1 : -1, turnsLeft: 3, src: srcKey, truth };
   showNewsModal(text, isPositive, srcKey, verdict);
   const verdictNote = verdict === null ? '' : (verdict ? ' (분석가: 신빙성 높음)' : ' (분석가: 신빙성 낮음)');
-  pushNewsItem(text + verdictNote, isPositive ? 'positive' : 'negative', src.label);
+  const historyId = pushNewsItem(text + verdictNote, isPositive ? 'positive' : 'negative', src.label);
+  activeNews = { stockIds: targetIds, direction: isPositive ? 1 : -1, turnsLeft: 3, src: srcKey, truth, historyId };
+  queueTip(srcKey === 'rumor' ? 'rumor' : 'news');
 }
 
 // 신문 팝업에 띄우는 동시에 소식 탭 히스토리에도 기록 (뉴스/상장폐지/시황 공용)
 // tone: 'positive' | 'negative' | 'neutral'
 const NEWS_TONE_LABELS = { positive: '호재', negative: '악재', neutral: '시황' };
 function pushNewsItem(text, tone, sourceLabel = null) {
-  newsHistory.unshift({ turn: turnCount, text, tone, sourceLabel });
+  const id = `n${turnCount}-${Math.random().toString(36).slice(2, 8)}`;
+  newsHistory.unshift({ id, turn: turnCount, text, tone, sourceLabel });
   if (newsHistory.length > 50) newsHistory.pop();
   if (mainTab === 'news') {
     renderNewsHistory();
@@ -1612,6 +1663,23 @@ function pushNewsItem(text, tone, sourceLabel = null) {
     hasUnreadNews = true;
     newsBadge.classList.remove('hidden');
   }
+  return id;
+}
+
+// 뉴스 효과가 끝나면 소식 탭의 해당 기사에 결과 표시
+function finishActiveNews() {
+  if (!activeNews) return;
+  const item = newsHistory.find(n => n.id === activeNews.historyId);
+  if (item) item.result = activeNews.truth ? 'hit' : 'miss';
+  activeNews = null;
+  if (mainTab === 'news') renderNewsHistory();
+}
+
+function renderNewsResult(item) {
+  if (item.result === 'hit') return '<span class="news-history-result hit">적중</span>';
+  if (item.result === 'miss') return '<span class="news-history-result miss">빗나감</span>';
+  if (activeNews && activeNews.historyId === item.id) return `<span class="news-history-result pending">진행 중 · ${activeNews.turnsLeft}턴</span>`;
+  return '';
 }
 
 function renderNewsHistory() {
@@ -1631,6 +1699,7 @@ function renderNewsHistory() {
         <span class="news-history-tags">
           <span class="news-history-tag ${item.tone}">${NEWS_TONE_LABELS[item.tone]}</span>
           ${item.sourceLabel ? `<span class="news-history-source">${item.sourceLabel}</span>` : ''}
+          ${renderNewsResult(item)}
         </span>
         <span class="news-history-turn">${item.turn}턴</span>
       </div>
@@ -1646,6 +1715,11 @@ async function goToNextTurn() {
   isTurnProcessing = true;
   try {
     await processNextTurn();
+    if (!isGameEnded) {
+      if ((turnCount + 1) % RENT_INTERVAL_TURNS === 0 && rentChargeCount === 0) queueTip('rent');
+      if (turnCount >= 15 && calcNetWorth() < gameStartCash * 0.6) queueTip('settle');
+      await flushTips();
+    }
   } finally {
     isTurnProcessing = false;
   }
@@ -1679,8 +1753,7 @@ async function processNextTurn() {
 
   // 급등 이벤트 발생 판정 (이번 턴 가격에 바로 반영 → 배너는 급등 '후'에 표시)
   let newEventStock = null;
-  const eventChance = EVENT_CHANCE * (hiredEmployees.has('theme_hunter') ? THEME_HUNTER_EVENT_MULT : 1);
-  if (!activeEvent && Math.random() < eventChance) {
+  if (!activeEvent && Math.random() < EVENT_CHANCE) {
     const pool = stocks.filter(s => !s.delisted && s.category === 'theme');
     if (pool.length > 0) {
       newEventStock = pool[Math.floor(Math.random() * pool.length)];
@@ -1740,11 +1813,11 @@ async function processNextTurn() {
       const st = stocks.find(x => x.id === id);
       return st && !st.delisted;
     });
-    if (activeNews.stockIds.length === 0) activeNews = null;
+    if (activeNews.stockIds.length === 0) finishActiveNews();
   }
   if (activeNews) {
     activeNews.turnsLeft--;
-    if (activeNews.turnsLeft <= 0) activeNews = null;
+    if (activeNews.turnsLeft <= 0) finishActiveNews();
   }
   // 상장폐지 속보: 해당 턴 신문(팝업 + 소식 탭)에 바로 반영
   if (delistedNamesThisTurn.length > 0) {
@@ -1775,7 +1848,13 @@ async function processNextTurn() {
 
   if (newEventStock && !newEventStock.delisted) {
     const pct = ((newEventStock._lastChangeRatio || 0) * 100).toFixed(1);
-    showEventBanner(`🔥 "${newEventStock.name}" 급등! (+${pct}%) 추가 상승은 미지수`);
+    let hint = '추가 상승은 미지수';
+    if (hiredEmployees.has('theme_hunter')) {
+      const willRiseMore = !!activeEvent && activeEvent.stockId === newEventStock.id && activeEvent.phase === 'spike';
+      const saysMore = Math.random() < THEME_HUNTER_HINT_ACCURACY ? willRiseMore : !willRiseMore;
+      hint = saysMore ? '테마 헌터: 추가 상승 예상' : '테마 헌터: 곧 차익 실현 매물 예상';
+    }
+    showEventBanner(`🔥 "${newEventStock.name}" 급등! (+${pct}%) ${hint}`);
   }
 
   // 펀드매니저: 매턴 보유 현금의 일정 비율 안정 수익
@@ -1875,7 +1954,7 @@ async function gameOver(result, message) {
   await saveSession(netWorth, result);
   await clearState();
 
-  resultTitle.textContent = result === 'bankrupt' ? '파산했습니다' : '은퇴 성공!';
+  resultTitle.textContent = { bankrupt: '파산했습니다', settled: '조기 정산', retired: '은퇴 성공!' }[result] || '게임 종료';
   resultDetail.textContent = `${message}\n최종 순자산: ${Math.round(netWorth).toLocaleString()}원\n생존 턴: ${turnCount}턴`;
 
   resultOverlay.classList.remove('hidden');
@@ -1903,13 +1982,25 @@ async function gameOver(result, message) {
   historyBox.innerHTML = '';
   history.forEach(h => {
     const div = document.createElement('div');
-    const label = h.result === 'bankrupt' ? '파산' : '은퇴';
+    const label = getResultLabel(h.result);
     div.textContent = `${label}: ${h.cnt}회 (최고 자산 ${h.best.toLocaleString()}원)`;
     historyBox.appendChild(div);
   });
 }
 
 function retire() { return gameOver('retired', '목표 수익을 달성하고 은퇴했습니다!'); }
+
+// 조기 정산: 기운 판을 끝까지 끌지 않고, 지금까지 불린 만큼 포인트를 받고 종료
+async function settleEarly() {
+  if (isTurnProcessing || isGameEnded) return;
+  const points = computeRunPoints('settled');
+  const ok = await showAppConfirm(
+    `이번 판을 여기서 끝내고 정산할까요?\n\n최고 순자산 ${Math.round(Math.max(peakNetWorth, calcNetWorth())).toLocaleString()}원 기준 ${points}P를 받습니다.\n(은퇴 보너스는 없습니다)`,
+    '정산하기', '계속하기'
+  );
+  if (!ok) return;
+  await gameOver('settled', '판을 조기 정산했습니다.');
+}
 
 // ───────── 매수/매도 ─────────
 function getQtyInputValue(stockId) {
@@ -2112,13 +2203,15 @@ function updateTopBar() {
   }
 
   retireBtn.classList.toggle('hidden', netWorth < TARGET_NET_WORTH);
+  settleBtn.classList.toggle('hidden', netWorth >= TARGET_NET_WORTH);
 
   const remainder = turnCount % RENT_INTERVAL_TURNS;
   const turnsLeft = remainder === 0 ? RENT_INTERVAL_TURNS : RENT_INTERVAL_TURNS - remainder;
   feeTurnsLeftEl.textContent = turnsLeft;
   const rentInfo = computeRentBreakdown();
-  nextFeeValue.textContent = rentInfo.total.toLocaleString();
-  nextSalaryValue.textContent = rentInfo.salaryTotal.toLocaleString();
+  nextFeeValue.textContent = formatCompactKRW(rentInfo.total);
+  nextSalaryValue.textContent = formatCompactKRW(rentInfo.salaryTotal);
+  nextNextFeeValue.textContent = formatCompactKRW(computeRentBreakdown(1).total);
 }
 
 function updateBottomPanel() {
@@ -2482,6 +2575,7 @@ loanDecreaseBtn.addEventListener('click', () => adjustLoanAmount(-LOAN_AMOUNT_ST
 loanIncreaseBtn.addEventListener('click', () => adjustLoanAmount(LOAN_AMOUNT_STEP));
 repayBtn.addEventListener('click', repayLoan);
 retireBtn.addEventListener('click', () => { if (!isTurnProcessing) retire(); });
+settleBtn.addEventListener('click', settleEarly);
 nextTurnBtn.addEventListener('click', goToNextTurn);
 restartBtn.addEventListener('click', async () => {
   resultOverlay.classList.add('hidden');

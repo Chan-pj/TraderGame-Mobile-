@@ -938,6 +938,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 #loan-btn { background: #fde047; color: #7a4b00; }
 #repay-btn { background: #6ee7a0; color: #0a3a1a; }
 #retire-btn { background: #c4b5fd; color: #3a2266; }
+#settle-btn { background: #e2e8f0; color: #475569; flex: 0 0 auto; padding: 10px 14px; }
 
 /* ── 공통 모달(오버레이) ── */
 #history-modal, #result-overlay, #loan-modal, #app-alert-modal, #news-modal, #draft-modal, #turn-toast, #action-toast {
@@ -1352,3 +1353,15 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .news-history-tags { display: inline-flex; gap: 4px; align-items: center; }
 .news-history-source { font-size: 9px; font-weight: bold; color: #64748b; background: #f1f5f9; padding: 1px 7px; border-radius: 10px; }
 #regime-chip { cursor: pointer; }
+
+/* 확인/알림 창은 영입·뉴스 창보다 위에 표시 (팁, 은퇴 확인 등) */
+#app-alert-modal { z-index: 44; }
+
+/* ── 결과: 조기 정산 ── */
+.record-result.result-mid { background: rgba(100,116,139,0.12); color: #475569; }
+
+/* ── 소식 탭: 뉴스 결과 ── */
+.news-history-result { font-size: 9px; font-weight: bold; padding: 1px 7px; border-radius: 10px; }
+.news-history-result.hit { color: #16a34a; background: rgba(34,197,94,0.12); }
+.news-history-result.miss { color: #dc2626; background: rgba(239,68,68,0.12); }
+.news-history-result.pending { color: #6d5bd0; background: rgba(109,91,208,0.1); }
