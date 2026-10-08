@@ -1195,13 +1195,18 @@ function getNextDraftTurn(t) {
   return DRAFT_FIRST_TURN + (Math.floor((t - DRAFT_FIRST_TURN) / DRAFT_INTERVAL) + 1) * DRAFT_INTERVAL;
 }
 
+// 정기 영입 때 나오는 후보 수 (기본 3명 + 성장·업적 보너스)
+function getDraftSize() {
+  return DRAFT_BASE_OPTIONS + (metaBonus ? metaBonus.draftPlus : 0);
+}
+
 function rollDraft(extraOptions = 0) {
   const pool = EMPLOYEES.filter(e => isEmployeeUnlocked(e) && !hiredEmployees.has(e.id));
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  const size = DRAFT_BASE_OPTIONS + (metaBonus ? metaBonus.draftPlus : 0) + extraOptions;
+  const size = getDraftSize() + extraOptions;
   const picked = pool.slice(0, size).map(e => e.id);
   return picked.length > 0 ? picked : null;
 }
@@ -1291,8 +1296,13 @@ function renderEmployeesModal() {
 
   const header = document.createElement('div');
   header.className = 'employee-pool-header';
-  header.textContent = '영입 후보 풀';
+  header.textContent = '영입 가능 인재';
   employeesListEl.appendChild(header);
+
+  const poolDesc = document.createElement('div');
+  poolDesc.className = 'employee-pool-desc';
+  poolDesc.textContent = `${DRAFT_INTERVAL}턴마다 이 중 무작위로 ${getDraftSize()}명이 영입 후보로 나옵니다.`;
+  employeesListEl.appendChild(poolDesc);
 
   others.forEach(emp => {
     const unlocked = isEmployeeUnlocked(emp);
@@ -1301,7 +1311,7 @@ function renderEmployeesModal() {
     row.innerHTML = `
       <div class="employee-top">
         <span class="employee-name">${emp.name}</span>
-        <span class="employee-pool-tag">${unlocked ? '후보' : '성장에서 해금'}</span>
+        <span class="employee-pool-tag">${unlocked ? '미영입' : '성장에서 해금'}</span>
       </div>
       <div class="employee-desc">${emp.desc} · 급여 ${emp.salary.toLocaleString()}원/징수</div>
     `;

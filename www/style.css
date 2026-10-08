@@ -1261,7 +1261,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 /* ── 직원 탭: 영입 후보 풀 ── */
 .employee-empty { text-align: center; font-size: 12px; color: #94a3b8; padding: 14px 0; }
-.employee-pool-header { font-size: 11px; font-weight: bold; color: #94a3b8; margin: 14px 2px 6px; }
+.employee-pool-header { font-size: 11px; font-weight: bold; color: #94a3b8; margin: 14px 2px 2px; }
+.employee-pool-desc { font-size: 10.5px; color: #94a3b8; margin: 0 2px 8px; }
 .employee-row.pool { opacity: 0.75; }
 .employee-row.pool.locked { opacity: 0.45; }
 .employee-pool-tag { font-size: 9.5px; font-weight: bold; color: #94a3b8; }
