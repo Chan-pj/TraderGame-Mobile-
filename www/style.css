@@ -17,23 +17,6 @@ html, body {
 
 .hidden { display: none !important; }
 
-#credit-watermark {
-  position: absolute;
-  left: 50%;
-  bottom: 10px;
-  transform: translateX(-50%);
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.55);
-  letter-spacing: 0.3px;
-  padding: 3px 10px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.22);
-  pointer-events: none;
-  z-index: 2;
-  white-space: nowrap;
-}
-
 button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 /* ── 메인 메뉴 (미니멀 게임 타이틀) ── */
