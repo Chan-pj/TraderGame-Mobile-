@@ -363,7 +363,85 @@ const ACHIEVEMENTS = [
 
 // ───────── DB ─────────
 const DB_NAME = 'trade_game_db';
-const SQLite = Capacitor.Plugins.CapacitorSQLite;
+// Android 앱은 Capacitor SQLite, 웹 브라우저는 sql.js(브라우저용 SQLite) + localStorage 영구 저장
+// 둘 다 같은 인터페이스(execute/query/run/executeSet)라 나머지 코드는 그대로 사용
+const IS_NATIVE_APP = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const SQLite = IS_NATIVE_APP ? Capacitor.Plugins.CapacitorSQLite : createWebSQLite();
+
+function createWebSQLite() {
+  const STORAGE_KEY = 'trade_game_db_v1';
+  const SQL_JS_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/';
+
+  const ready = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = SQL_JS_BASE + 'sql-wasm.js';
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('sql.js 로드 실패'));
+    document.head.appendChild(script);
+  })
+    .then(() => window.initSqlJs({ locateFile: file => SQL_JS_BASE + file }))
+    .then(SQL => new SQL.Database(loadBytes()));
+
+  function loadBytes() {
+    try {
+      const b64 = localStorage.getItem(STORAGE_KEY);
+      if (!b64) return undefined;
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return bytes;
+    } catch (e) {
+      console.error('저장 데이터 불러오기 실패:', e);
+      return undefined;
+    }
+  }
+
+  // 쓰기 작업마다 즉시 저장 → 게임 도중 창을 닫아도 마지막 상태 유지
+  // (시크릿 모드 등 저장이 막힌 환경에서는 저장 없이 플레이만 가능)
+  function persist(db) {
+    try {
+      const bytes = db.export();
+      let bin = '';
+      const CHUNK = 0x8000;
+      for (let i = 0; i < bytes.length; i += CHUNK) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+      localStorage.setItem(STORAGE_KEY, btoa(bin));
+    } catch (e) {
+      console.error('저장 실패:', e);
+    }
+  }
+
+  function queryRows(db, statement, values) {
+    const stmt = db.prepare(statement);
+    try {
+      stmt.bind(values || []);
+      const rows = [];
+      while (stmt.step()) rows.push(stmt.getAsObject());
+      return rows;
+    } finally {
+      stmt.free();
+    }
+  }
+
+  return {
+    createConnection: async () => {},
+    open: async () => { await ready; },
+    execute: async ({ statements }) => { const db = await ready; db.exec(statements); persist(db); },
+    query: async ({ statement, values }) => ({ values: queryRows(await ready, statement, values) }),
+    run: async ({ statement, values }) => { const db = await ready; db.run(statement, values || []); persist(db); },
+    executeSet: async ({ set }) => {
+      const db = await ready;
+      db.exec('BEGIN;');
+      try {
+        set.forEach(s => db.run(s.statement, s.values || []));
+        db.exec('COMMIT;');
+      } catch (e) {
+        db.exec('ROLLBACK;');
+        throw e;
+      }
+      persist(db);
+    }
+  };
+}
 
 // ───────── 게임 상태 전역변수 ─────────
 let cash, stocks, loan, loansTakenCount, priceHistory, netWorthHistory, activeEvent, activeNews;
@@ -2626,7 +2704,13 @@ function bindInstantPressFeedback() {
 document.addEventListener('DOMContentLoaded', async () => {
   bindInstantPressFeedback();
   buildTickerTape();
-  await initDB();
+  try {
+    await initDB();
+  } catch (e) {
+    console.error('저장소 초기화 실패:', e);
+    showAppAlert('게임 데이터를 불러오지 못했습니다.\n인터넷 연결을 확인한 뒤 새로고침해 주세요.');
+    return;
+  }
   await loadMetaState();
   await updateContinueButtonState();
   await updateMainMenuStats();

@@ -3,7 +3,9 @@
 턴제 주식투자 시뮬레이터 모바일 게임입니다. 가상의 종목을 사고팔아 순자산 **50,000,000원**을 만들면 은퇴(클리어)합니다.
 한 판이 30~50턴 안에 끝나는 **로그라이크** 구조라서, 판마다 시장이 달라지고 판이 끝날 때마다 영구 성장 요소가 쌓입니다.
 
-HTML/CSS/JavaScript로 만들고 [Capacitor](https://capacitorjs.com/)로 Android 앱으로 패키징했습니다.
+HTML/CSS/JavaScript로 만들고 [Capacitor](https://capacitorjs.com/)로 Android 앱으로 패키징했습니다. 같은 코드가 웹 브라우저에서도 동작합니다.
+
+**▶ 웹에서 바로 플레이: https://chan-pj.github.io/TraderGame-Mobile-/**
 
 ## 주요 기능
 
@@ -57,8 +59,10 @@ HTML/CSS/JavaScript로 만들고 [Capacitor](https://capacitorjs.com/)로 Androi
 
 - **프론트엔드**: Vanilla JavaScript, HTML, CSS (프레임워크 없음)
 - **앱 패키징**: Capacitor 8 (Android)
-- **저장소**: [@capacitor-community/sqlite](https://github.com/capacitor-community/sqlite)
-  - 진행 중인 게임 상태, 플레이 기록, 업적, 성장 정보를 저장합니다.
+- **저장소**: 진행 중인 게임 상태, 플레이 기록, 업적, 성장 정보를 SQLite로 저장합니다.
+  - Android 앱: [@capacitor-community/sqlite](https://github.com/capacitor-community/sqlite)
+  - 웹 브라우저: [sql.js](https://sql.js.org/)를 쓰고, 데이터는 브라우저의 localStorage에 저장합니다. 기기와 브라우저마다 따로 저장되며, 시크릿 모드에서는 창을 닫으면 사라집니다.
+- **웹 배포**: GitHub Pages (GitHub Actions로 `www/` 자동 배포)
 - **Android**: minSdk 24, targetSdk 36
 
 ## 프로젝트 구조
@@ -69,6 +73,7 @@ TradeGame/
 │   ├── index.html           # 화면 구성
 │   ├── script.js            # 게임 로직 전체
 │   └── style.css            # 스타일
+├── .github/workflows/       # GitHub Pages 자동 배포
 ├── android/                 # Capacitor Android 프로젝트
 │   └── app/src/main/assets/public/   # www/가 복사되는 위치 (직접 수정 X)
 ├── capacitor.config.json
@@ -112,7 +117,17 @@ npx cap open android
 ### 디버깅
 에러는 화면 팝업 대신 콘솔에 기록됩니다. 기기를 USB로 연결한 뒤 PC Chrome에서 `chrome://inspect`로 접속하면 WebView 콘솔을 볼 수 있습니다.
 
-> 브라우저에서 `www/index.html`을 바로 열면 SQLite 플러그인이 없어서 동작하지 않습니다. Android 기기나 에뮬레이터에서 실행해 주세요.
+### 웹 버전 로컬 실행
+`www/` 폴더를 간단한 웹 서버로 띄우면 브라우저에서 바로 플레이할 수 있습니다. sql.js를 CDN에서 불러오므로 인터넷 연결이 필요합니다.
+
+```bash
+cd www && python -m http.server 8000
+```
+
+그다음 브라우저에서 http://localhost:8000 에 접속합니다.
+
+### 웹 배포
+`main` 브랜치에 `www/` 변경을 push하면 GitHub Actions(`.github/workflows/deploy-pages.yml`)가 자동으로 GitHub Pages에 배포합니다.
 
 ## 만든 사람
 

@@ -1,0 +1,35 @@
+# www/ 폴더(웹 게임)를 GitHub Pages로 배포
+# main 브랜치에 www/ 변경이 push될 때마다 자동 실행 (Actions 탭에서 수동 실행도 가능)
+name: Deploy web game to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'www/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+      - id: deployment
+        uses: actions/deploy-pages@v4
