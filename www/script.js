@@ -616,16 +616,29 @@ function showScreen(screen) {
 }
 
 // ───────── 커스텀 알림/확인 모달 ─────────
+// 팝업을 닫을 때 0.2초 뒤 숨기는 타이머를 걸어두는데, 그 사이에 같은 팝업을 다시 열면
+// 이전 타이머가 새로 연 팝업을 숨겨버림 (예: 팁 두 개가 연달아 뜨면 두 번째 팁이 사라져 턴 진행이 멈춤)
+// → 팝업별로 타이머를 기억해 두고 다시 열 때 취소
+const modalHideTimers = new Map();
+function scheduleModalHide(modal) {
+  clearTimeout(modalHideTimers.get(modal));
+  modalHideTimers.set(modal, setTimeout(() => modal.classList.add('hidden'), 200));
+}
+function revealModal(modal) {
+  clearTimeout(modalHideTimers.get(modal));
+  modal.classList.remove('hidden');
+}
+
 function hideAppAlert() {
   appAlertBox.classList.remove('show');
   appAlertModal.classList.remove('visible');
-  setTimeout(() => appAlertModal.classList.add('hidden'), 200);
+  scheduleModalHide(appAlertModal);
 }
 
 function showAppAlert(message) {
   appAlertMessage.textContent = message;
   appAlertCancelBtn.classList.add('hidden');
-  appAlertModal.classList.remove('hidden');
+  revealModal(appAlertModal);
   requestAnimationFrame(() => {
     appAlertModal.classList.add('visible');
     requestAnimationFrame(() => appAlertBox.classList.add('show'));
@@ -641,7 +654,7 @@ function showAppConfirm(message, okLabel = '확인', cancelLabel = '취소') {
   appAlertOkBtn.textContent = okLabel;
   appAlertCancelBtn.textContent = cancelLabel;
   appAlertCancelBtn.classList.remove('hidden');
-  appAlertModal.classList.remove('hidden');
+  revealModal(appAlertModal);
   requestAnimationFrame(() => {
     appAlertModal.classList.add('visible');
     requestAnimationFrame(() => appAlertBox.classList.add('show'));
@@ -739,7 +752,7 @@ function showNewsModal(text, isPositive, srcKey = null, verdict = null) {
     newsAnalystEl.textContent = verdict ? '분석가 의견: 신빙성 높음' : '분석가 의견: 신빙성 낮음';
     newsAnalystEl.className = verdict ? 'trust' : 'doubt';
   }
-  newsModal.classList.remove('hidden');
+  revealModal(newsModal);
   requestAnimationFrame(() => {
     newsModal.classList.add('visible');
     requestAnimationFrame(() => newsModalBox.classList.add('show'));
@@ -748,7 +761,7 @@ function showNewsModal(text, isPositive, srcKey = null, verdict = null) {
 function hideNewsModal() {
   newsModalBox.classList.remove('show');
   newsModal.classList.remove('visible');
-  setTimeout(() => newsModal.classList.add('hidden'), 200);
+  scheduleModalHide(newsModal);
 }
 newsCloseBtn.addEventListener('click', hideNewsModal);
 newsConfirmBtn.addEventListener('click', hideNewsModal);
@@ -870,11 +883,18 @@ function queueTip(key) {
   tipQueue.push(key);
 }
 
+let isFlushingTips = false;
 async function flushTips() {
-  while (tipQueue.length > 0 && !isGameEnded) {
-    const key = tipQueue.shift();
-    await setMeta('tip_' + key, 1);
-    await showAppAlert(TIPS[key]);
+  if (isFlushingTips) return;
+  isFlushingTips = true;
+  try {
+    while (tipQueue.length > 0 && !isGameEnded) {
+      const key = tipQueue.shift();
+      await setMeta('tip_' + key, 1);
+      await showAppAlert(TIPS[key]);
+    }
+  } finally {
+    isFlushingTips = false;
   }
 }
 
@@ -1227,7 +1247,7 @@ function showDraftModal() {
     `;
     draftOptionsEl.appendChild(btn);
   });
-  draftModal.classList.remove('hidden');
+  revealModal(draftModal);
   requestAnimationFrame(() => {
     draftModal.classList.add('visible');
     requestAnimationFrame(() => draftModalBox.classList.add('show'));
@@ -1237,7 +1257,7 @@ function showDraftModal() {
 function hideDraftModal() {
   draftModalBox.classList.remove('show');
   draftModal.classList.remove('visible');
-  setTimeout(() => draftModal.classList.add('hidden'), 200);
+  scheduleModalHide(draftModal);
 }
 
 async function resolveDraft(empId) {
@@ -1806,11 +1826,11 @@ async function goToNextTurn() {
     if (!isGameEnded) {
       if ((turnCount + 1) % RENT_INTERVAL_TURNS === 0 && rentChargeCount === 0) queueTip('rent');
       if (turnCount >= 15 && calcNetWorth() < gameStartCash * 0.6) queueTip('settle');
-      await flushTips();
     }
   } finally {
     isTurnProcessing = false;
   }
+  flushTips();
 }
 
 async function processNextTurn() {
@@ -2209,7 +2229,7 @@ function openLoanModal() {
   if (gameLoanMaxCap < LOAN_AMOUNT_MIN) selectedLoanAmount = gameLoanMaxCap;
   loanMaxLabel.textContent = gameLoanMaxCap.toLocaleString();
   updateLoanStepperDisplay();
-  loanModal.classList.remove('hidden');
+  revealModal(loanModal);
   requestAnimationFrame(() => {
     loanModal.classList.add('visible');
     requestAnimationFrame(() => loanModalBox.classList.add('show'));
@@ -2218,7 +2238,7 @@ function openLoanModal() {
 function hideLoanModal() {
   loanModalBox.classList.remove('show');
   loanModal.classList.remove('visible');
-  setTimeout(() => loanModal.classList.add('hidden'), 200);
+  scheduleModalHide(loanModal);
 }
 function updateLoanStepperDisplay() {
   loanAmountDisplay.textContent = `${selectedLoanAmount.toLocaleString()}원`;
