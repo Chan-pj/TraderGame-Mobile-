@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">tradegame</string>
+    <string name="title_activity_main">tradegame</string>
+    <string name="package_name">com.chan.tradegame</string>
+    <string name="custom_url_scheme">com.chan.tradegame</string>
+</resources>
