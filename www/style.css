@@ -273,7 +273,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 .section-label {
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748b;
   margin-bottom: 10px;
   text-align: left;
 }
@@ -384,11 +384,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   padding: 10px 12px;
   border-radius: 12px;
   margin-bottom: 8px;
-  opacity: 0.5;
   text-align: left;
 }
 
-.achv-row.unlocked { opacity: 1; }
+.achv-row:not(.unlocked) { background: #f8fafc; }
 
 .achv-icon {
   flex-shrink: 0;
@@ -403,7 +402,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   justify-content: center;
   font-size: 11px;
   font-weight: bold;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .achv-row.unlocked .achv-icon {
@@ -417,20 +416,20 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .achv-name {
   font-size: 12.5px;
   font-weight: bold;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .achv-row.unlocked .achv-name { color: #1e293b; }
 
 .achv-desc {
   font-size: 10.5px;
-  color: #94a3b8;
+  color: #64748b;
   margin-top: 1px;
 }
 
 .achv-status {
   font-size: 10.5px;
-  color: #e58e00;
+  color: #b45309;
   font-weight: bold;
   margin-top: 4px;
 }
@@ -467,10 +466,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   padding: 2px 8px;
   border-radius: 6px;
 }
-.record-result.result-good { background: rgba(34,197,94,0.12); color: #16a34a; }
+.record-result.result-good { background: rgba(34,197,94,0.12); color: #15803d; }
 .record-result.result-bad { background: rgba(239,68,68,0.12); color: #dc2626; }
 
-.record-date { font-size: 10px; color: #94a3b8; }
+.record-date { font-size: 10px; color: #64748b; }
 .record-detail { font-size: 11px; color: #64748b; margin-top: 2px; }
 
 /* ── 난이도 선택 ── */
@@ -501,7 +500,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .diff-icon { color: #3b82f6; margin-bottom: 2px; }
 .diff-btn[data-diff="aggressive"] .diff-icon { color: #ef4444; }
 .diff-name { font-size: 16px; font-weight: 900; }
-.diff-desc { font-size: 11.5px; color: #94a3b8; }
+.diff-desc { font-size: 11.5px; color: #64748b; }
 .diff-btn:active { transform: scale(0.98); }
 
 /* ── 게임 화면 ── */
@@ -547,10 +546,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   background: #ffffff;
   color: #475569;
 }
-#regime-chip.regime-bull { color: #16a34a; }
+#regime-chip.regime-bull { color: #15803d; }
 #regime-chip.regime-bear { color: #dc2626; }
 #regime-chip.regime-sideways { color: #64748b; }
-#regime-chip.regime-volatile { color: #d97706; }
+#regime-chip.regime-volatile { color: #b45309; }
 
 #turn-header {
   display: flex;
@@ -564,7 +563,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border-radius: 12px;
   flex-shrink: 0;
 }
-#turn-header-label { font-size: 8px; font-weight: 900; letter-spacing: 2px; color: #a5b4fc; }
+#turn-header-label { font-size: 9px; font-weight: 900; letter-spacing: 2px; color: #a5b4fc; }
 #turn-value { font-size: 12px; font-weight: 900; color: #ffffff; }
 
 /* ── 상태 카드 (시장 탭 전용) ── */
@@ -581,9 +580,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .stat { text-align: center; flex: 1; min-width: 0; }
 .stat .label {
   display: block;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #64748b;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 1px;
@@ -597,15 +596,15 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-#cash-value { color: #16a34a; }
-#networth-value { color: #e58e00; }
-#loan-value { color: #94a3b8; }
+#cash-value { color: #15803d; }
+#networth-value { color: #b45309; }
+#loan-value { color: #64748b; }
 #loan-value.has-loan { color: #dc2626; }
 
 #status-card #loan-status {
   text-align: center;
-  font-size: 9px;
-  color: #94a3b8;
+  font-size: 10px;
+  color: #64748b;
   margin-top: 5px;
   padding-top: 5px;
   border-top: 1px solid #f1f5f9;
@@ -626,7 +625,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   flex-shrink: 0;
 }
 .employee-badge {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
   padding: 3px 9px;
   border-radius: 10px;
@@ -647,7 +646,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 }
 
 #event-banner {
-  background: #22b8cf;
+  background: #0e7490;
   color: white;
   text-align: center;
   font-size: 10.5px;
@@ -666,7 +665,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border: none;
   border-radius: 8px;
   background: #ffffff;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 10px;
   font-weight: bold;
 }
@@ -679,7 +678,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border: none;
   border-radius: 8px;
   background: #ffffff;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 10px;
   font-weight: bold;
 }
@@ -697,7 +696,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .sector-header {
   font-size: 11.5px;
   font-weight: bold;
-  color: #94a3b8;
+  color: #64748b;
   padding: 2px 4px 8px;
   border-bottom: 1px solid #f1f5f9;
   margin-bottom: 8px;
@@ -745,7 +744,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border: none;
   border-radius: 14px;
   background: #ffffff;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 10.5px;
   font-weight: bold;
   position: relative;
@@ -766,7 +765,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 }
 
 /* ── 직원관리 탭 ── */
-#employees-modal-desc { font-size: 12px; color: #64748b; text-align: center; margin-bottom: 12px; flex-shrink: 0; }
+#employees-modal-desc { font-size: 12px; color: #475569; text-align: center; margin-bottom: 12px; flex-shrink: 0; }
 #employees-list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 2px; }
 
 /* ── 소식 탭 ── */
@@ -774,15 +773,15 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 .news-history-item { background: #ffffff; border-radius: 12px; padding: 9px 11px; }
 .news-history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-.news-history-turn { font-size: 10px; color: #94a3b8; }
-.news-history-tag { font-size: 9px; font-weight: bold; padding: 1px 8px; border-radius: 10px; }
-.news-history-tag.positive { color: #16a34a; background: rgba(34,197,94,0.12); }
+.news-history-turn { font-size: 10px; color: #64748b; }
+.news-history-tag { font-size: 10px; font-weight: bold; padding: 1px 8px; border-radius: 10px; }
+.news-history-tag.positive { color: #15803d; background: rgba(34,197,94,0.12); }
 .news-history-tag.negative { color: #dc2626; background: rgba(239,68,68,0.12); }
-.news-history-tag.neutral { color: #6d5bd0; background: rgba(109,91,208,0.12); }
+.news-history-tag.neutral { color: #5b45c2; background: rgba(109,91,208,0.12); }
 .news-history-text { font-size: 12px; line-height: 1.5; color: #334155; }
-.news-history-empty { text-align: center; padding: 40px 10px; font-size: 13px; color: #94a3b8; }
+.news-history-empty { text-align: center; padding: 40px 10px; font-size: 13px; color: #64748b; }
 
-#empty-holding-msg { text-align: center; padding: 30px 10px; font-size: 13px; color: #94a3b8; }
+#empty-holding-msg { text-align: center; padding: 30px 10px; font-size: 13px; color: #64748b; }
 
 .stock-row {
   background: #ffffff;
@@ -804,17 +803,17 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 .mini-chart-btn {
   background: #f1f5f9;
-  color: #64748b;
+  color: #475569;
   border: none;
   border-radius: 8px;
   padding: 4px 8px;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
 }
 
 .category-tag {
   display: inline-block;
-  font-size: 8.5px;
+  font-size: 9.5px;
   font-weight: bold;
   padding: 0px 5px;
   border-radius: 6px;
@@ -822,11 +821,11 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   vertical-align: middle;
 }
 .category-tag.bluechip { background: rgba(59,130,246,0.12); color: #2563eb; }
-.category-tag.theme { background: rgba(245,158,11,0.14); color: #d97706; }
+.category-tag.theme { background: rgba(245,158,11,0.14); color: #b45309; }
 
 .risk-badge {
   display: inline-block;
-  font-size: 8.5px;
+  font-size: 9.5px;
   font-weight: bold;
   color: #ef4444;
   border: 1px solid #ef4444;
@@ -835,15 +834,15 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   margin-left: 6px;
   vertical-align: middle;
 }
-.risk-badge.delisted-badge { color: #94a3b8; border-color: #94a3b8; }
+.risk-badge.delisted-badge { color: #64748b; border-color: #94a3b8; }
 .delisted-msg { font-size: 10.5px; color: #dc2626; padding-top: 4px; }
 
 .stock-name { font-size: 13px; font-weight: bold; color: #1e293b; }
 .stock-price { font-size: 12px; font-weight: bold; }
-.stock-price.up { color: #ef4444; }
-.stock-price.down { color: #3b82f6; }
-.stock-holding { font-size: 10px; color: #94a3b8; }
-.stock-holding.profit { color: #16a34a; }
+.stock-price.up { color: #dc2626; }
+.stock-price.down { color: #2563eb; }
+.stock-holding { font-size: 10px; color: #64748b; }
+.stock-holding.profit { color: #15803d; }
 .stock-holding.loss { color: #dc2626; }
 
 .stock-controls-wrap { max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
@@ -865,7 +864,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   color: #1e293b;
   font-weight: bold;
 }
-.qty-affordable { font-size: 10px; color: #94a3b8; font-weight: 600; }
+.qty-affordable { font-size: 10px; color: #64748b; font-weight: 600; }
 .qty-quick { display: flex; gap: 6px; flex-wrap: wrap; }
 .qty-quick-btn {
   flex: 1;
@@ -891,8 +890,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   transition: transform 0.06s ease;
 }
 .stock-buttons button:active, .stock-buttons button.pressed { transform: scale(0.94); }
-.buy-btn { background: #ef4444; color: white; }
-.sell-btn { background: #3b82f6; color: white; }
+.buy-btn { background: #dc2626; color: white; }
+.sell-btn { background: #2563eb; color: white; }
 .max-buy-btn { background: #b91c1c; color: white; }
 .max-sell-btn { background: #1d4ed8; color: white; }
 
@@ -1062,7 +1061,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .employee-action-btn:active:not(:disabled), .employee-action-btn.pressed:not(:disabled) { transform: scale(0.94); }
 .hire-btn { background: #22b8cf; color: #ffffff; }
 .fire-btn { background: #ef4444; color: white; }
-.locked-btn { background: #f1f5f9; color: #94a3b8; }
+.locked-btn { background: #f1f5f9; color: #64748b; }
 
 /* ── 대출 모달 ── */
 #loan-stepper { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -1086,12 +1085,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   text-align: center;
   font-size: 18px;
   font-weight: 900;
-  color: #e58e00;
+  color: #b45309;
   background: #fff8ec;
   border-radius: 10px;
   padding: 12px 4px;
 }
-#loan-repay-preview { white-space: pre-line; line-height: 1.6; font-size: 12.5px; color: #e58e00; font-weight: bold; margin-bottom: 16px; text-align: center; }
+#loan-repay-preview { white-space: pre-line; line-height: 1.6; font-size: 12.5px; color: #b45309; font-weight: bold; margin-bottom: 16px; text-align: center; }
 #loan-cancel-btn { background: #f1f5f9; color: #475569; }
 #loan-confirm-btn { background: #fde047; color: #7a4b00; }
 
@@ -1198,7 +1197,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 #news-sentiment.negative { color: #8a2020; border-color: #8a2020; background: rgba(138, 32, 32, 0.08); }
 
 #news-masthead { font-size: 20px; font-weight: 900; letter-spacing: 2px; padding: 5px 0 7px; border-top: 2px solid #2b2620; border-bottom: 3px double #2b2620; }
-#news-byline { text-align: center; font-size: 9.5px; letter-spacing: 2px; opacity: 0.55; margin: 7px 0 10px; }
+#news-byline { text-align: center; font-size: 9.5px; letter-spacing: 2px; opacity: 0.8; margin: 7px 0 10px; }
 #news-header-rule { height: 0; border-bottom: 1px solid #c9bb95; margin-bottom: 14px; }
 
 #news-modal-text {
@@ -1246,7 +1245,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .draft-option:active, .draft-option.pressed { transform: scale(0.97); background: #ecfeff; }
 .draft-option-name { font-size: 14px; font-weight: 900; color: #1e293b; }
 .draft-option-desc { font-size: 11.5px; color: #475569; }
-.draft-option-salary { font-size: 10.5px; font-weight: bold; color: #e58e00; }
+.draft-option-salary { font-size: 10.5px; font-weight: bold; color: #b45309; }
 #draft-skip-btn {
   width: 100%;
   padding: 10px;
@@ -1254,18 +1253,19 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border-radius: 10px;
   font-weight: bold;
   background: #f1f5f9;
-  color: #64748b;
+  color: #475569;
   transition: transform 0.06s ease;
 }
 #draft-skip-btn:active, #draft-skip-btn.pressed { transform: scale(0.97); }
 
 /* ── 직원 탭: 영입 후보 풀 ── */
-.employee-empty { text-align: center; font-size: 12px; color: #94a3b8; padding: 14px 0; }
-.employee-pool-header { font-size: 11px; font-weight: bold; color: #94a3b8; margin: 14px 2px 2px; }
-.employee-pool-desc { font-size: 10.5px; color: #94a3b8; margin: 0 2px 8px; }
-.employee-row.pool { opacity: 0.75; }
-.employee-row.pool.locked { opacity: 0.45; }
-.employee-pool-tag { font-size: 9.5px; font-weight: bold; color: #94a3b8; }
+.employee-empty { text-align: center; font-size: 12px; color: #475569; padding: 14px 0; }
+.employee-pool-header { font-size: 11px; font-weight: bold; color: #475569; margin: 14px 2px 2px; }
+.employee-pool-desc { font-size: 10.5px; color: #475569; margin: 0 2px 8px; }
+.employee-row.pool { background: #f8fafc; }
+.employee-row.pool.locked { background: #f8fafc; border: 1px dashed #cbd5e1; }
+.employee-row.pool.locked .employee-name { color: #475569; }
+.employee-pool-tag { font-size: 10px; font-weight: bold; color: #475569; }
 
 /* ── 결과 화면 포인트 ── */
 #result-points {
@@ -1280,7 +1280,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 }
 
 /* ── 업적 보상 ── */
-.achv-reward { font-size: 10px; color: #6d5bd0; font-weight: bold; margin-top: 3px; }
+.achv-reward { font-size: 10.5px; color: #6d5bd0; font-weight: bold; margin-top: 3px; }
 
 /* ── 성장 화면 ── */
 #upgrade-points {
@@ -1302,7 +1302,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .upgrade-row.owned { border-left: 4px solid #fde047; }
 .upgrade-body { flex: 1; min-width: 0; text-align: left; }
 .upgrade-name { font-size: 13px; font-weight: bold; color: #1e293b; }
-.upgrade-level { font-size: 10px; color: #e58e00; margin-left: 4px; }
+.upgrade-level { font-size: 10px; color: #b45309; margin-left: 4px; }
 .upgrade-desc { font-size: 10.5px; color: #64748b; margin-top: 1px; }
 .upgrade-buy-btn {
   flex-shrink: 0;
@@ -1316,7 +1316,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   font-weight: 900;
   transition: transform 0.06s ease;
 }
-.upgrade-buy-btn:disabled { background: #e2e8f0; color: #94a3b8; }
+.upgrade-buy-btn:disabled { background: #e2e8f0; color: #475569; }
 .upgrade-buy-btn:active:not(:disabled), .upgrade-buy-btn.pressed:not(:disabled) { transform: scale(0.94); }
 
 /* ── 뉴스 출처 등급 ── */
@@ -1335,7 +1335,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 #news-analyst.trust { color: #1b5e20; background: rgba(27, 94, 32, 0.1); }
 #news-analyst.doubt { color: #8a2020; background: rgba(138, 32, 32, 0.1); }
 .news-history-tags { display: inline-flex; gap: 4px; align-items: center; }
-.news-history-source { font-size: 9px; font-weight: bold; color: #64748b; background: #f1f5f9; padding: 1px 7px; border-radius: 10px; }
+.news-history-source { font-size: 10px; font-weight: bold; color: #475569; background: #f1f5f9; padding: 1px 7px; border-radius: 10px; }
 #regime-chip { cursor: pointer; }
 
 /* 확인/알림 창은 영입·뉴스 창보다 위에 표시 (팁, 은퇴 확인 등) */
@@ -1345,7 +1345,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .record-result.result-mid { background: rgba(100,116,139,0.12); color: #475569; }
 
 /* ── 소식 탭: 뉴스 결과 ── */
-.news-history-result { font-size: 9px; font-weight: bold; padding: 1px 7px; border-radius: 10px; }
-.news-history-result.hit { color: #16a34a; background: rgba(34,197,94,0.12); }
+.news-history-result { font-size: 10px; font-weight: bold; padding: 1px 7px; border-radius: 10px; }
+.news-history-result.hit { color: #15803d; background: rgba(34,197,94,0.12); }
 .news-history-result.miss { color: #dc2626; background: rgba(239,68,68,0.12); }
 .news-history-result.pending { color: #6d5bd0; background: rgba(109,91,208,0.1); }
